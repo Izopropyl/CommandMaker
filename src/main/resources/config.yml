@@ -1,0 +1,14 @@
+# CommandMaker Config
+config:
+  enabled-commands:
+    - examplecommand
+
+
+
+
+commands:
+  examplecommand:
+    aliases:
+      - examplescommand
+    message:
+      - "&6&lHello! This is the example!"

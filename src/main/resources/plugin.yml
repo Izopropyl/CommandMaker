@@ -1,0 +1,14 @@
+name: CommandMaker
+version: '1.0-SNAPSHOT'
+main: net.kingidk.commandMaker.CommandMaker
+api-version: '1.21'
+authors: [ Kingidk ]
+commands:
+  commandmaker:
+    usage: /commandmaker reload
+    description: Reload
+
+permissions:
+  commandmaker.admin:
+    description: Admin command
+    default: op
