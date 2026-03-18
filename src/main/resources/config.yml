@@ -1,14 +1,18 @@
 # CommandMaker Config
+
 config:
-  enabled-commands:
+  enabled-commands: # Add the names of every command you want to have enabled here
     - examplecommand
 
-
-
+# You can use {player} placeholder in messages or commands
+# Add as many commands as you want
 
 commands:
-  examplecommand:
-    aliases:
+  examplecommand: # This will be the name of the command label. This would be /examplecommand to run
+    aliases: # Other commands that will also trigger these actions. Remove line if there are no aliases
       - examplescommand
     actions:
-      - "&6&lHello! This is the example!"
+      - "MESSAGE:&6&lHello! <green>This is the example!" # Send a message. Both legacy formatting & minimessage supported
+      - "CONSOLE:say Hello!" # Send console commands
+      - "PLAYER:/claim" # Send commands as player
+    permission: "commandmaker.example" # Permission required to run the command. leave blank/remove line to disable

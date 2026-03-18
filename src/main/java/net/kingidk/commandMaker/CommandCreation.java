@@ -14,16 +14,25 @@ import java.util.List;
 public class CommandCreation extends Command {
     private final List<String> actions;
     private final CommandMaker plugin;
+    private final String permission;
 
-    public CommandCreation(String name, List<String> aliases, List<String> actions, CommandMaker plugin) {
+    public CommandCreation(String name, List<String> aliases, List<String> actions, CommandMaker plugin, String permission) {
         super(name);
         this.plugin = plugin;
         setAliases(aliases);
         this.actions = actions;
+        this.permission = permission;
     }
 
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String label, String[] args) {
+        if (!(permission == null)) {
+            if (!sender.hasPermission(permission)) {
+                sender.sendMessage(Component.text("You do not have permission to run this command!", NamedTextColor.RED));
+                return true;
+            }
+        }
+
         for (String string : actions) {
             if (!string.contains(":")) {
                 plugin.getLogger().warning("Incorrectly formatted action! Failed to parse: " + string);
@@ -32,6 +41,9 @@ public class CommandCreation extends Command {
             int colonIndex = string.indexOf(":");
             String prefix = string.substring(0, colonIndex + 1);
             String action = string.substring(colonIndex + 1).trim();
+            if (sender instanceof Player p) {
+                action = action.replace("{player}", p.getName());
+            }
             switch (prefix) {
                 case "MESSAGE:" -> sendMessage(sender, action);
                 case "CONSOLE:" -> runCommand(sender, action, true);

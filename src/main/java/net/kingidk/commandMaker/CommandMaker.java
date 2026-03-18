@@ -39,7 +39,8 @@ public final class CommandMaker extends JavaPlugin {
         for (String cmdName : getConfig().getStringList("config.enabled-commands")) {
             List<String> aliases = getConfig().getStringList("commands." + cmdName + ".aliases");
             List<String> actions = getConfig().getStringList("commands." + cmdName + ".actions");
-            CommandCreation cmd = new CommandCreation(cmdName, aliases, actions, this);
+            String permission = getConfig().getString("commands." + cmdName + ".permission");
+            CommandCreation cmd = new CommandCreation(cmdName, aliases, actions, this, permission);
             commandMap.register(getName(), cmd);
             registeredCommands.add(cmd);
     }
@@ -61,5 +62,6 @@ public final class CommandMaker extends JavaPlugin {
         }
         registeredCommands.clear();
     }
+
 
 }
