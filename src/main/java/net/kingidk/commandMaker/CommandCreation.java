@@ -1,30 +1,68 @@
 package net.kingidk.commandMaker;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class CommandCreation extends Command {
-    private final List<String> messages;
+    private final List<String> actions;
+    private final CommandMaker plugin;
 
-    public CommandCreation(String name, List<String> aliases, List<String> messages) {
+    public CommandCreation(String name, List<String> aliases, List<String> actions, CommandMaker plugin) {
         super(name);
+        this.plugin = plugin;
         setAliases(aliases);
-        this.messages = messages;
+        this.actions = actions;
     }
 
     @Override
-    public boolean execute(CommandSender sender, String label, String[] args) {
-        for (String message: messages) {
-            Component component = MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(message));
-            sender.sendMessage(component);
+    public boolean execute(@NotNull CommandSender sender, @NotNull String label, String[] args) {
+        for (String string : actions) {
+            if (!string.contains(":")) {
+                plugin.getLogger().warning("Incorrectly formatted action! Failed to parse: " + string);
+                return true;
+            }
+            int colonIndex = string.indexOf(":");
+            String prefix = string.substring(0, colonIndex + 1);
+            String action = string.substring(colonIndex + 1).trim();
+            switch (prefix) {
+                case "MESSAGE:" -> sendMessage(sender, action);
+                case "CONSOLE:" -> runCommand(sender, action, true);
+                case "PLAYER:" -> runCommand(sender, action, false);
+                default -> plugin.getLogger().warning("Incorrectly formatted action! Failed to parse: " + string);
+            }
         }
+
+
         return true;
     }
+
+    public void runCommand(CommandSender sender, String command, boolean isConsole) {
+        if (isConsole) {
+            Bukkit.getGlobalRegionScheduler().run(plugin, t -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command));
+        } else {
+            if (!(sender instanceof Player p)) {
+                sender.sendMessage(Component.text("You must be a player to run this command!", NamedTextColor.RED));
+                return;
+            }
+            p.getScheduler().run(plugin, t -> Bukkit.dispatchCommand(p, command), null);
+        }
+    }
+
+    public void sendMessage(CommandSender sender, String action) {
+            Component component = MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(action));
+            sender.sendMessage(component);
+    }
+
+
+
     private static String convertLegacyToMiniMessage(String input) {
         return input
                 .replace("&0", "<black>").replace("&1", "<dark_blue>")

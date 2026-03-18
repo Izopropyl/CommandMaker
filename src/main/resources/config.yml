@@ -10,5 +10,5 @@ commands:
   examplecommand:
     aliases:
       - examplescommand
-    message:
+    actions:
       - "&6&lHello! This is the example!"

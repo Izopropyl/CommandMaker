@@ -8,16 +8,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public final class CommandMaker extends JavaPlugin {
     private final List<CommandCreation> registeredCommands = new ArrayList<>();
+
 
     @Override
     public void onEnable() {
         // Plugin startup logic
         saveDefaultConfig();
         registerCommands();
-        getCommand("commandmaker").setExecutor(new AdminCommand(this));
+        Objects.requireNonNull(getCommand("commandmaker")).setExecutor(new AdminCommand(this));
         }
 
 
@@ -36,8 +38,8 @@ public final class CommandMaker extends JavaPlugin {
         CommandMap commandMap = Bukkit.getServer().getCommandMap();
         for (String cmdName : getConfig().getStringList("config.enabled-commands")) {
             List<String> aliases = getConfig().getStringList("commands." + cmdName + ".aliases");
-            List<String> messages = getConfig().getStringList("commands." + cmdName + ".message");
-            CommandCreation cmd = new CommandCreation(cmdName, aliases, messages);
+            List<String> actions = getConfig().getStringList("commands." + cmdName + ".actions");
+            CommandCreation cmd = new CommandCreation(cmdName, aliases, actions, this);
             commandMap.register(getName(), cmd);
             registeredCommands.add(cmd);
     }
