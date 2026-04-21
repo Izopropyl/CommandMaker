@@ -60,10 +60,7 @@ public class CommandCreation extends Command {
         if (isConsole) {
             Bukkit.getGlobalRegionScheduler().run(plugin, t -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command));
         } else {
-            if (!(sender instanceof Player p)) {
-                sender.sendMessage(Component.text("You must be a player to run this command!", NamedTextColor.RED));
-                return;
-            }
+            Player p = (Player) sender;
             p.getScheduler().run(plugin, t -> Bukkit.dispatchCommand(p, command), null);
         }
     }

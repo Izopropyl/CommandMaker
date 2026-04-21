@@ -44,6 +44,8 @@ public final class CommandMaker extends JavaPlugin {
             commandMap.register(getName(), cmd);
             registeredCommands.add(cmd);
     }
+        getLogger().info("Successfully registered " + registeredCommands.size() + " commands to the server");
+
 
     }
 
@@ -60,6 +62,7 @@ public final class CommandMaker extends JavaPlugin {
                 knownCommands.remove(getName() + ":" + alias);
             }
         }
+
         registeredCommands.clear();
     }
 

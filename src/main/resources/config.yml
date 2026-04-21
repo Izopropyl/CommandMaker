@@ -14,5 +14,5 @@ commands:
     actions:
       - "MESSAGE:&6&lHello! <green>This is the example!" # Send a message. Both legacy formatting & minimessage supported
       - "CONSOLE:say Hello!" # Send console commands
-      - "PLAYER:/claim" # Send commands as player
+      - "PLAYER:say Hiii" # Send commands as player
     permission: "commandmaker.example" # Permission required to run the command. leave blank/remove line to disable
