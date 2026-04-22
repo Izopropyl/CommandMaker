@@ -1,5 +1,6 @@
 package net.kingidk.commandMaker;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -43,6 +44,9 @@ public class CommandCreation extends Command {
             String action = string.substring(colonIndex + 1).trim();
             if (sender instanceof Player p) {
                 action = action.replace("{player}", p.getName());
+                action = PlaceholderAPI.setPlaceholders(p, action);
+            } else {
+                action = PlaceholderAPI.setPlaceholders(null, action);
             }
             switch (prefix) {
                 case "MESSAGE:" -> sendMessage(sender, action);
@@ -66,7 +70,7 @@ public class CommandCreation extends Command {
     }
 
     public void sendMessage(CommandSender sender, String action) {
-            Component component = MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(action));
+        Component component = MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(action));
             sender.sendMessage(component);
     }
 
