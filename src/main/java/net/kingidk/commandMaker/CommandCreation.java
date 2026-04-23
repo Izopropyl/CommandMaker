@@ -92,7 +92,9 @@ public class CommandCreation extends Command {
             if (sender instanceof Player p) {
                 action = action.replace("{player}", p.getName());
             }
-            action = PlaceholderAPI.setPlaceholders(papiTarget, action);
+            if (plugin.papi) {
+                action = PlaceholderAPI.setPlaceholders(papiTarget, action);
+            }
 
             // Send action out to methods
             switch (prefix) {

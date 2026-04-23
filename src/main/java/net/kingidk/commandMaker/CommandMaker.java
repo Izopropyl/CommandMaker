@@ -13,12 +13,22 @@ import java.util.Objects;
 
 public final class CommandMaker extends JavaPlugin {
     private final List<CommandCreation> registeredCommands = new ArrayList<>();
+    public boolean papi;
 
 
     @Override
     public void onEnable() {
         // Plugin startup logic
         saveDefaultConfig();
+
+         var placeholderAPI = Bukkit.getPluginManager().getPlugin("PlaceholderAPI");
+
+         if (placeholderAPI == null) {
+            getLogger().info("PlaceholderAPI not detected, PAPI-based placeholders will be in plain-text!");
+            papi = false;
+        } else papi = true;
+
+
         registerCommands();
         Objects.requireNonNull(getCommand("commandmaker")).setExecutor(new AdminCommand(this));
         }
