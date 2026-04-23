@@ -3,6 +3,7 @@ package net.kingidk.commandMaker;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -37,15 +38,27 @@ public final class CommandMaker extends JavaPlugin {
     private void registerCommands() {
         CommandMap commandMap = Bukkit.getServer().getCommandMap();
         for (String cmdName : getConfig().getStringList("config.enabled-commands")) {
+            // Establish config settings for command
             List<String> aliases = getConfig().getStringList("commands." + cmdName + ".aliases");
             List<String> actions = getConfig().getStringList("commands." + cmdName + ".actions");
             String permission = getConfig().getString("commands." + cmdName + ".permission");
-            CommandCreation cmd = new CommandCreation(cmdName, aliases, actions, this, permission);
+
+            ConfigurationSection argsSection = getConfig().getConfigurationSection("commands." + cmdName + ".args");
+            List<ArgsDefinition> argDefs = new ArrayList<>();
+            if (argsSection != null) {
+                for (String argName : argsSection.getKeys(false)) {
+                    String type = argsSection.getString(argName + ".type", "STRING");
+                    boolean papi = argsSection.getBoolean(argName + ".placeholder", false);
+                    argDefs.add(new ArgsDefinition(argName, type, papi));
+                }
+            }
+
+
+            CommandCreation cmd = new CommandCreation(cmdName, aliases, actions, this, permission, argDefs);
             commandMap.register(getName(), cmd);
             registeredCommands.add(cmd);
     }
         getLogger().info("Successfully registered " + registeredCommands.size() + " commands to the server");
-
 
     }
 

@@ -16,3 +16,15 @@ commands:
       - "CONSOLE:say Hello!" # Send console commands
       - "PLAYER:say Hiii" # Send commands as player
     permission: "commandmaker.example" # Permission required to run the command. leave blank/remove line to disable
+    args: # Arguments for the command. Can be removed if not needed for the command
+      'Arg1':
+        # Arguments are additional information you can add to the command. Args will be accessible as placeholders in your actions
+        # This argument section is named Arg1, so the placeholder will be {Arg1}
+        # Argument options:
+        # PLAYER - Any online player. Will tab complete
+        # STRING - Can be any string
+        # INT - Any whole number
+        # FLOAT - Any Number w/ decimals
+        type: PLAYER
+        placeholder: true # Only for player type. If true, this player will be given to PAPI instead of the sender
+

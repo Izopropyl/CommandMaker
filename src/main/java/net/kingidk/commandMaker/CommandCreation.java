@@ -11,18 +11,21 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommandCreation extends Command {
     private final List<String> actions;
     private final CommandMaker plugin;
     private final String permission;
+    private final List<ArgsDefinition> argDefs;
 
-    public CommandCreation(String name, List<String> aliases, List<String> actions, CommandMaker plugin, String permission) {
+    public CommandCreation(String name, List<String> aliases, List<String> actions, CommandMaker plugin, String permission, List<ArgsDefinition> argDefs) {
         super(name);
         this.plugin = plugin;
         setAliases(aliases);
         this.actions = actions;
         this.permission = permission;
+        this.argDefs = argDefs;
     }
 
     @Override
@@ -33,6 +36,11 @@ public class CommandCreation extends Command {
                 return true;
             }
         }
+        long requiredCount = argDefs.size();
+        if (args.length < requiredCount) {
+            sender.sendMessage(Component.text("Not enough arguments!", NamedTextColor.RED));
+            return true;
+        }
 
         for (String string : actions) {
             if (!string.contains(":")) {
@@ -42,12 +50,51 @@ public class CommandCreation extends Command {
             int colonIndex = string.indexOf(":");
             String prefix = string.substring(0, colonIndex + 1);
             String action = string.substring(colonIndex + 1).trim();
+
+            Player papiTarget;
+            if (sender instanceof Player p) {
+                papiTarget = p;
+            } else papiTarget = null;
+
+            // Verify args
+            for (int i = 0; i < argDefs.size() && i < args.length; i ++) {
+                ArgsDefinition def = argDefs.get(i);
+                String value = args[i];
+                boolean valid = switch (def.type().toUpperCase()) {
+                    case "INT" -> isInteger(value);
+                    case "FLOAT" -> isFloat(value);
+                    default -> true; // STRING and PLAYER accept anything
+                };
+                if (!valid) {
+                    sender.sendMessage(Component.text(
+                            "Argument '" + def.name() + "' must be a " + def.type(), NamedTextColor.RED
+                    ));
+                    return true;
+                }
+
+                if (def.type().equalsIgnoreCase("PLAYER") && def.papi()) {
+                    papiTarget = Bukkit.getPlayer(args[i]);
+                }
+
+
+            }
+
+
+
+
+            // Parse Placeholders
+            // Args
+            for (int i = 0; i < argDefs.size() && i < args.length; i++) {
+                action = action.replace("{" + argDefs.get(i).name() + "}", args[i]);
+            }
+
+            // Player & PAPI
             if (sender instanceof Player p) {
                 action = action.replace("{player}", p.getName());
-                action = PlaceholderAPI.setPlaceholders(p, action);
-            } else {
-                action = PlaceholderAPI.setPlaceholders(null, action);
             }
+            action = PlaceholderAPI.setPlaceholders(papiTarget, action);
+
+            // Send action out to methods
             switch (prefix) {
                 case "MESSAGE:" -> sendMessage(sender, action);
                 case "CONSOLE:" -> runCommand(sender, action, true);
@@ -92,6 +139,42 @@ public class CommandCreation extends Command {
     }
 
 
+    @Override
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) {
+        int index = args.length - 1;
 
+        if (index < argDefs.size() && argDefs.get(index).type().equalsIgnoreCase("PLAYER")) {
+            return Bukkit.getOnlinePlayers().stream()
+                    .map(Player::getName)
+                    .filter(name -> name.toLowerCase().startsWith(args[index].toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        if (index < argDefs.size() && argDefs.get(index).type().equalsIgnoreCase("INT")) {
+            return List.of("<whole number>");
+        }
+        if (index < argDefs.size() && argDefs.get(index).type().equalsIgnoreCase("FLOAT")) {
+            return List.of("<number>");
+        }
+        return List.of();
+    }
+
+    private boolean isInteger(String arg) {
+        try {
+            Integer.parseInt(arg);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private boolean isFloat(String arg) {
+        try {
+            Float.parseFloat(arg);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 
 }
