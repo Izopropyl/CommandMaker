@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class CommandCreation extends Command {
+    MiniMessage mm = MiniMessage.miniMessage();
     private final List<String> actions;
     private final CommandMaker plugin;
     private final String permission;
@@ -119,7 +120,7 @@ public class CommandCreation extends Command {
     }
 
     public void sendMessage(CommandSender sender, String action) {
-        Component component = MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(action));
+        Component component = mm.deserialize(convertLegacyToMiniMessage(action));
             sender.sendMessage(component);
     }
 
