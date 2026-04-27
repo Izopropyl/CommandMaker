@@ -1,11 +1,13 @@
 package net.kingidk.commandMaker;
 
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandMap;
+import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,12 +16,16 @@ import java.util.Objects;
 public final class CommandMaker extends JavaPlugin {
     private final List<CommandCreation> registeredCommands = new ArrayList<>();
     public boolean papi;
+    private BukkitAudiences audiences;
 
+    public BukkitAudiences getAudiences() {
+        return audiences;
+    }
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
         saveDefaultConfig();
+        audiences = BukkitAudiences.create(this);
 
          var placeholderAPI = Bukkit.getPluginManager().getPlugin("PlaceholderAPI");
 
@@ -36,8 +42,8 @@ public final class CommandMaker extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
         unregisterCommands();
+        if (audiences != null) audiences.close();
     }
     public void reload() {
         unregisterCommands();
@@ -46,7 +52,8 @@ public final class CommandMaker extends JavaPlugin {
     }
 
     private void registerCommands() {
-        CommandMap commandMap = Bukkit.getServer().getCommandMap();
+        SimpleCommandMap commandMap = getCommandMap();
+
         for (String cmdName : getConfig().getStringList("config.enabled-commands")) {
             // Establish config settings for command
             List<String> aliases = getConfig().getStringList("commands." + cmdName + ".aliases");
@@ -74,19 +81,40 @@ public final class CommandMaker extends JavaPlugin {
 
 
     private void unregisterCommands() {
-        CommandMap commandMap = Bukkit.getServer().getCommandMap();
-        Map<String, Command> knownCommands = commandMap.getKnownCommands();
-        for (CommandCreation cmd : registeredCommands) {
-            cmd.unregister(commandMap);
-            knownCommands.remove(cmd.getName());
-            knownCommands.remove(getName() + ":" + cmd.getName());
-            for (String alias : cmd.getAliases()) {
-                knownCommands.remove(alias);
-                knownCommands.remove(getName() + ":" + alias);
+        SimpleCommandMap commandMap = getCommandMap();
+        if (commandMap == null) return;
+
+        try {
+            Field knownCommandsField = commandMap.getClass().getDeclaredField("knownCommands");
+            knownCommandsField.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            Map<String, Command> knownCommands = (Map<String, Command>) knownCommandsField.get(commandMap);
+
+            for (CommandCreation cmd : registeredCommands) {
+                cmd.unregister(commandMap);
+                knownCommands.remove(cmd.getName());
+                knownCommands.remove(getName() + ":" + cmd.getName());
+                for (String alias : cmd.getAliases()) {
+                    knownCommands.remove(alias);
+                    knownCommands.remove(getName() + ":" + alias);
+                }
             }
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            getLogger().severe("Failed to unregister commands: " + e.getMessage());
         }
 
         registeredCommands.clear();
+    }
+
+    private SimpleCommandMap getCommandMap() {
+        try {
+            Field field = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+            field.setAccessible(true);
+            return (SimpleCommandMap) field.get(Bukkit.getServer());
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            getLogger().severe("Failed to retrieve command map: " + e.getMessage());
+            return null;
+        }
     }
 
 

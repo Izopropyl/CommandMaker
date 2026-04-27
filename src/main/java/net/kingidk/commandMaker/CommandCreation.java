@@ -4,6 +4,7 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.audience.Audience;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -33,13 +34,13 @@ public class CommandCreation extends Command {
     public boolean execute(@NotNull CommandSender sender, @NotNull String label, String[] args) {
         if (!(permission == null)) {
             if (!sender.hasPermission(permission)) {
-                sender.sendMessage(Component.text("You do not have permission to run this command!", NamedTextColor.RED));
+                audience(sender).sendMessage(Component.text("You do not have permission to run this command!", NamedTextColor.RED));
                 return true;
             }
         }
         long requiredCount = argDefs.size();
         if (args.length < requiredCount) {
-            sender.sendMessage(Component.text("Not enough arguments!", NamedTextColor.RED));
+            audience(sender).sendMessage(Component.text("Not enough arguments!", NamedTextColor.RED));
             return true;
         }
 
@@ -67,7 +68,7 @@ public class CommandCreation extends Command {
                     default -> true; // STRING and PLAYER accept anything
                 };
                 if (!valid) {
-                    sender.sendMessage(Component.text(
+                    audience(sender).sendMessage(Component.text(
                             "Argument '" + def.name() + "' must be a " + def.type(), NamedTextColor.RED
                     ));
                     return true;
@@ -112,16 +113,20 @@ public class CommandCreation extends Command {
 
     public void runCommand(CommandSender sender, String command, boolean isConsole) {
         if (isConsole) {
-            Bukkit.getGlobalRegionScheduler().run(plugin, t -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command));
+            SchedulerUtil.runGlobal(plugin, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command));
         } else {
             Player p = (Player) sender;
-            p.getScheduler().run(plugin, t -> Bukkit.dispatchCommand(p, command), null);
+            SchedulerUtil.runForPlayer(plugin, p, () -> Bukkit.dispatchCommand(p, command));
         }
     }
 
     public void sendMessage(CommandSender sender, String action) {
         Component component = mm.deserialize(convertLegacyToMiniMessage(action));
-            sender.sendMessage(component);
+        audience(sender).sendMessage(component);
+    }
+
+    private Audience audience(CommandSender sender) {
+        return plugin.getAudiences().sender(sender);
     }
 
 
