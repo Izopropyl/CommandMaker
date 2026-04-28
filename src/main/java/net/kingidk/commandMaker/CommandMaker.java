@@ -8,6 +8,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +77,16 @@ public final class CommandMaker extends JavaPlugin {
             registeredCommands.add(cmd);
     }
         getLogger().info("Successfully registered " + registeredCommands.size() + " commands to the server");
+        syncCommands();
+    }
 
+    private void syncCommands() {
+        try {
+            Method sync = Bukkit.getServer().getClass().getMethod("syncCommands");
+            sync.invoke(Bukkit.getServer());
+        } catch (Exception e) {
+            getLogger().warning("Failed to sync commands: " + e.getMessage());
+        }
     }
 
 
@@ -85,7 +95,7 @@ public final class CommandMaker extends JavaPlugin {
         if (commandMap == null) return;
 
         try {
-            Field knownCommandsField = commandMap.getClass().getDeclaredField("knownCommands");
+            Field knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
             knownCommandsField.setAccessible(true);
             @SuppressWarnings("unchecked")
             Map<String, Command> knownCommands = (Map<String, Command>) knownCommandsField.get(commandMap);

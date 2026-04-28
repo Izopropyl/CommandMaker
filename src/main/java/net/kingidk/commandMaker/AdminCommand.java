@@ -2,6 +2,7 @@ package net.kingidk.commandMaker;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -17,12 +18,13 @@ public class AdminCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] args) {
         if (!commandSender.hasPermission("commandmaker.admin")) {
-            commandSender.sendMessage(Component.text("You do not have permission!", NamedTextColor.RED));
+            commandSender.sendMessage(ChatColor.RED + "You do not have permission!");
             return true;
         }
+
         if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
             plugin.reload();
-            commandSender.sendMessage(Component.text("CommandMaker has been reloaded!", NamedTextColor.GREEN));
+            commandSender.sendMessage(ChatColor.GREEN + "CommandMaker config has been reloaded!");
             return true;
         }
 
