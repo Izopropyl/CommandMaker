@@ -141,7 +141,7 @@ public class EditSubCommand {
         if (args[3].equalsIgnoreCase("remove")) {
             if (!ArgVerification.isInteger(args[4])) {
                 sender.sendMessage(Component.text("You must write the id to the action you wish to remove. Use /cm edit <name> action list to view IDs", NamedTextColor.RED));
-            } else if (Integer.parseInt(args[4]) > actions.size()) {
+            } else if (Integer.parseInt(args[4]) > actions.size() - 1) {
                 sender.sendMessage(Component.text("This action ID does not exist. Check /cm edit <name> action list", NamedTextColor.RED));
             } else {
                 actions.remove(Integer.parseInt(args[4]));
