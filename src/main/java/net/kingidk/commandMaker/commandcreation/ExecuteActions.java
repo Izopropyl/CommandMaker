@@ -18,7 +18,9 @@ public class ExecuteActions {
     }
 
     public void sendMessage(CommandSender sender, String action, boolean broadcast) {
-        Component component = MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(action));
+        String convertedAction = convertLegacyToMiniMessage(convertURLToClickable(action));
+        Component component = MiniMessage.miniMessage().deserialize(convertedAction);
+
         if (broadcast) {
             for (Player p :  Bukkit.getOnlinePlayers()) {
                 p.sendMessage(component);
@@ -81,6 +83,10 @@ public class ExecuteActions {
                 .replace("&l", "<bold>").replace("&o", "<italic>")
                 .replace("&n", "<underlined>").replace("&m", "<strikethrough>")
                 .replace("&k", "<obfuscated>").replace("&r", "<reset>");
+    }
+
+    private static String convertURLToClickable(String input) {
+        return input.replaceAll("\\[([^]]+)]\\(([^)]+)\\)", "<click:open_url:$2><hover:show_text:'$2'>$1</hover></click>");
     }
 
 
