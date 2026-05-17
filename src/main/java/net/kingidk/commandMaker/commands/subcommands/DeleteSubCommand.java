@@ -40,6 +40,7 @@ public class DeleteSubCommand {
         List<String> enabledCommands = plugin.getConfig().getStringList("config.enabled-commands");
         enabledCommands.remove(name);
         plugin.getConfig().set("config.enabled-commands", enabledCommands);
+        plugin.saveConfig();
         plugin.reload();
 
         sender.sendMessage(Component.text("Command '" + name + "' has been deleted successfully", NamedTextColor.GREEN));

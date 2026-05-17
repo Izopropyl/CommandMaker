@@ -31,7 +31,7 @@ public class CreateSubCommand {
         String commandSection = "commands." + args[1].toLowerCase();
 
         plugin.getConfig().createSection(commandSection);
-
+        plugin.saveConfig();
         plugin.reload();
         sender.sendMessage(Component.text("Added command \"" + args[1] + "\"", NamedTextColor.GREEN));
         sender.sendMessage(Component.text("Use '/cm edit " + args[1] + "' to edit the command" , NamedTextColor.GREEN));

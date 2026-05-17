@@ -35,6 +35,7 @@ public class EnableSubCommand {
             enabledCommands.add(args[1]);
             config.set("config.enabled-commands", enabledCommands);
 
+            plugin.saveConfig();
             plugin.reload();
 
             sender.sendMessage(Component.text("Command " + args[1] + " has been enabled", NamedTextColor.GREEN));

@@ -119,7 +119,7 @@ public class EditSubCommand {
             actions.add(action);
 
             config.set("commands." + name + ".actions", actions);
-
+            plugin.saveConfig();
             plugin.reload();
 
             sender.sendMessage(Component.text("Action '" + action + "' added to command " + name, NamedTextColor.GREEN));
@@ -146,7 +146,7 @@ public class EditSubCommand {
             } else {
                 actions.remove(Integer.parseInt(args[4]));
                 config.set("commands." + name + ".actions", actions);
-
+                plugin.saveConfig();
                 plugin.reload();
                 sender.sendMessage(Component.text("Successfully removed action id " + args[4], NamedTextColor.GREEN));
             }
@@ -172,7 +172,7 @@ public class EditSubCommand {
                 config.set("commands." + args[1] + ".permission", args[3]);
                 sender.sendMessage(Component.text("Permission " + args[3] + " set for command " + args[1], NamedTextColor.GREEN));
             }
-
+            plugin.saveConfig();
             plugin.reload();
 
 
@@ -211,6 +211,7 @@ public class EditSubCommand {
             aliases.add(args[4].toLowerCase());
 
             config.set("commands." + name + ".aliases", aliases);
+            plugin.saveConfig();
             plugin.reload();
             sender.sendMessage(Component.text("Alias '" + args[4] + "' added to command " + name, NamedTextColor.GREEN));
 
@@ -244,7 +245,7 @@ public class EditSubCommand {
 
                 aliases.remove(alias);
                 config.set("commands." + name + ".aliases", aliases);
-
+                plugin.saveConfig();
                 plugin.reload();
                 sender.sendMessage(Component.text("Successfully removed alias " + alias, NamedTextColor.GREEN));
 

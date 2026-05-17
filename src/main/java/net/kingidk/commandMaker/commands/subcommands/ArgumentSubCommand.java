@@ -74,7 +74,7 @@ public class ArgumentSubCommand {
             if (type.equalsIgnoreCase("player") && args.length > 5) {
                 config.set("commands." + name + ".args." + argName + ".placeholder", args[5]);
             }
-
+            plugin.saveConfig();
             plugin.reload();
             sender.sendMessage(Component.text("Argument " + argName + " added to command " + name, NamedTextColor.GREEN));
 
@@ -130,6 +130,7 @@ public class ArgumentSubCommand {
             }
 
             config.set("commands." + name + ".args." + argName, null);
+            plugin.saveConfig();
             plugin.reload();
             sender.sendMessage(Component.text("Argument '" + argName + "' has been removed from command '" + name + "'"));
         }
