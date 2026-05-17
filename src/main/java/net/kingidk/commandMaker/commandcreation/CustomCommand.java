@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,6 +47,13 @@ public class CustomCommand extends Command {
             sender.sendMessage(Component.text("Not enough arguments!", NamedTextColor.RED));
             return true;
         }
+
+        if (!argDefs.isEmpty() && argDefs.get(argDefs.size() - 1).type().equalsIgnoreCase("STRING") && args.length > argDefs.size()) {
+            String[] condensed = Arrays.copyOf(args, argDefs.size());
+            condensed[argDefs.size() - 1] = String.join(" ", Arrays.copyOfRange(args, argDefs.size() - 1, args.length));
+            args = condensed;
+        }
+
 
         for (String string : actions) {
             int colonIndex = string.indexOf(":");
